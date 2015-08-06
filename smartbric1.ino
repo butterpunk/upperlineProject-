@@ -28,7 +28,7 @@ void setup(void)
 
   BTLEserial.begin();
 
-    if(!bmp.begin())
+    if(!bmp.begin())//pressure sensor 
   {
     /* There was a problem detecting the BMP085 ... check your connections */
     Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
@@ -45,7 +45,8 @@ aci_evt_opcode_t laststatus = ACI_EVT_DISCONNECTED;
 
 void loop()
 {
-     sensors_event_t event;
+  //creating event for pressure sensor///////////////////////////////////// 
+  sensors_event_t event;
   bmp.getEvent(&event);
  
   /* Display the results (barometric pressure is measure in hPa) */
@@ -53,13 +54,13 @@ void loop()
   {
     
     /* Display atmospheric pressure in hPa */
-    Serial.print("Pressure: "); //Serial.print(event.pressure); Serial.println(" hPa");
-  //}
-  //else
-  //{
-    //Serial.println("Sensor error");
-  
-  
+    Serial.print("Pressure: "); Serial.print(event.pressure); Serial.println(" hPa");
+  }
+  else
+ {
+   Serial.println("Sensor error");
+//////////  
+ }
   // Tell the nRF8001 to do whatever it should be working on.
   BTLEserial.pollACI();
 
@@ -93,20 +94,20 @@ void loop()
     }
    sensors_event_t event;
   bmp.getEvent(&event);
-    // Next up, see if we have any data to get from the Serial console
+    // Next up, see if we have any data to get from the Serial console **THIS IS WHERE SERIAL OUT LIVES
 /////////////////////////////////////////////
-    if (event.pressure) {
+    if (event.pressure) {// if there is pressure
       // Read a line from Serial
-      Serial.setTimeout(100); // 100 millisecond timeout
-      String s = Serial.readString();
+      Serial.setTimeout(100); // 100 millisecond timeout *does this timing need to be in sync with pressure sensor? don't think so 
+       String s = Serial.readString();
 
       // We need to convert the line to bytes, no more than 20 at this time
       uint8_t sendbuffer[20];
       s.getBytes(sendbuffer, 20);
       char sendbuffersize = min(20, s.length());
-
+     
       Serial.print(F("\n* Sending -> \"")); Serial.print((char *)sendbuffer); Serial.println("\"");
-
+       //This is where I'm screwing up 
       // write the data
       BTLEserial.write(sendbuffer, sendbuffersize);
     }
